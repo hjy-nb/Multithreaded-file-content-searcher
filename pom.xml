@@ -17,6 +17,7 @@
     <module>manager</module>
     <module>exception</module>
     <module>main</module>
+      <module>scanner</module>
   </modules>
 
   <properties>

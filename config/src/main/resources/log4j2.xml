@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" monitorInterval="30">
+    <properties>
+        <property name="logPath">D:/java_idea/IntelliJ IDEA 2025.3.3/saveProject/Multithreaded-file-content-searcher/log</property>
+        <property name="outPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</property>
+        <property name="filePattern">logs-%d{yyyy-MM-dd}-%i.log</property>
+        <property name="fileSys">system_log</property>
+        <property name="fileBus">business_log</property>
+        <property name="fileErr">error_log</property>
+        <property name="fileName">Logs.log</property>
+    </properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${outPattern}"/>
+        </Console>
+
+        <RollingFile name="RollingSystem" fileName="${logPath}/${fileSys}/${fileName}" filePattern="${logPath}/${fileSys}/${filePattern}">
+            <PatternLayout pattern="${outPattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="15"/>
+        </RollingFile>
+
+        <RollingFile name="RollingBusiness" fileName="${logPath}/${fileBus}/${fileName}" filePattern="${logPath}/${fileBus}/${filePattern}">
+            <PatternLayout pattern="${outPattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="15"/>
+        </RollingFile>
+
+        <RollingFile name="ErrorFile" fileName="${logPath}/${fileErr}/${fileName}" filePattern="${logPath}/${fileErr}/${filePattern}">
+            <PatternLayout pattern="${outPattern}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="15"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+
+        <AsyncLogger name="SYSTEM" level="INFO" additivity="false" includeLocation="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingSystem"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="BUSINESS" level="INFO" additivity="false" includeLocation="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingBusiness"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="ERROR" level="ERROR" additivity="false" includeLocation="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ErrorFile"/>
+        </AsyncLogger>
+    </Loggers>
+</Configuration>

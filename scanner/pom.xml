@@ -7,10 +7,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>manager</artifactId>
+    <artifactId>scanner</artifactId>
     <packaging>jar</packaging>
 
-    <name>manager</name>
+    <name>scanner</name>
     <url> </url>
 
     <properties>
@@ -26,21 +26,7 @@
 
         <dependency>
             <groupId>com.yao.mfcs</groupId>
-            <artifactId>task</artifactId>
-            <version>${modules.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.yao.mfcs</groupId>
-            <artifactId>result</artifactId>
-            <version>${modules.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.yao.mfcs</groupId>
-            <artifactId>scanner</artifactId>
+            <artifactId>config</artifactId>
             <version>${modules.version}</version>
             <scope>compile</scope>
         </dependency>
