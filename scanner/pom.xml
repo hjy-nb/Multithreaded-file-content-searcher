@@ -30,5 +30,12 @@
             <version>${modules.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.yao.mfcs</groupId>
+            <artifactId>exception</artifactId>
+            <version>${modules.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

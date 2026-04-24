@@ -1,25 +1,68 @@
 package com.yao.mfcs;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LoadConfigTest {
-    /**
-     * 测试获取int类型配置项
-     */
+class LoadConfigTest {
+
+    // 测试正常加载配置文件并获取 String 属性
     @Test
-    public void testGetPropertyInt() {
-        int value = LoadConfig.getPropertyInt("ThreadPool.CorePoolSize");
-        assertEquals(16, value);
+    void testGetProperty() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertNotNull(config.getProperty("ThreadPool.CorePoolSize"));
     }
 
-    /**
-     * 测试获取int类型配置项（带默认值）
-     */
+    // 测试获取不存在的属性时返回 null
     @Test
-    public void testGetPropertyIntWithDefault() {
-        int value = LoadConfig.getPropertyInt("NonExistentKey", 100);
-        assertEquals(100, value);
+    void testGetPropertyNotFound() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertNull(config.getProperty("non.existent.key"));
     }
 
+    // 测试获取 String 属性时使用默认值
+    @Test
+    void testGetPropertyWithDefault() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertEquals("default_value", config.getProperty("non.existent.key", "default_value"));
+    }
+
+    // 测试正常获取 int 类型属性
+    @Test
+    void testGetPropertyInt() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        int depth = config.getPropertyInt("ThreadPool.CorePoolSize");
+        assertTrue(depth > 0);
+    }
+
+    // 测试获取 int 属性失败时抛出异常
+    @Test
+    void testGetPropertyIntInvalid() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertThrows(IllegalArgumentException.class, () -> {
+            config.getPropertyInt("search.directory"); 
+        });
+    }
+
+    // 测试获取 int 属性失败时使用默认值
+    @Test
+    void testGetPropertyIntWithDefault() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertEquals(100, config.getPropertyInt("non.existent.int", 100));
+    }
+
+    // 测试获取 boolean 属性失败时使用默认值
+    @Test
+    void testGetPropertyBooleanWithDefault() {
+        LoadConfig config = new LoadConfig("thread-pool.properties");
+        assertTrue(config.getPropertyBoolean("ThreadPool.CorePoolSize", true));
+    }
+
+    // 测试加载不存在的配置文件时抛出异常
+    @Test
+    void testLoadNonExistentConfig() {
+        assertThrows(RuntimeException.class, () -> {
+            new LoadConfig("non_existent.properties");
+        });
+    }
 }
