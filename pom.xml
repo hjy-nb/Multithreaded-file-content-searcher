@@ -18,6 +18,7 @@
     <module>exception</module>
     <module>main</module>
       <module>scanner</module>
+      <module>retry</module>
   </modules>
 
   <properties>

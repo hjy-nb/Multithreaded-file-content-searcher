@@ -7,10 +7,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>main</artifactId>
+    <artifactId>retry</artifactId>
     <packaging>jar</packaging>
 
-    <name>main</name>
+    <name>retry</name>
     <url> </url>
 
     <properties>
@@ -26,14 +26,14 @@
 
         <dependency>
             <groupId>com.yao.mfcs</groupId>
-            <artifactId>manager</artifactId>
+            <artifactId>config</artifactId>
             <version>${modules.version}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.yao.mfcs</groupId>
-            <artifactId>retry</artifactId>
+            <artifactId>exception</artifactId>
             <version>${modules.version}</version>
             <scope>compile</scope>
         </dependency>

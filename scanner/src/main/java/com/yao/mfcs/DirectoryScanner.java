@@ -50,7 +50,6 @@ public class DirectoryScanner {
     //判断路径是否存在
     public void pathExists(Path path) {
         if(!Files.exists(path)){
-            ERROR_LOGGER.error("目录不存在：{}",path);
             throw new InvalidPathException("目录不存在：" + path);
         }
     }
@@ -79,7 +78,7 @@ public class DirectoryScanner {
         System.out.println("4: 文档文件 (.txt, .md, .docx...)");
         System.out.println("5: 数据文件 (.csv, .xlsx, .sql...)");
         System.out.println("6: 压缩归档文件 (.zip, .tar, .rar...)");
-        System.out.print("请输入您的选择：(一行输入逗号隔开)");
+        System.out.println("请输入您的选择：(一行输入逗号隔开)");
     }
 
 
@@ -142,15 +141,33 @@ public class DirectoryScanner {
             }
         }
 
-        try(Stream<Path> stream = Files.find(directoryPath, maxDepth, (path, attributes) -> {
-            return attributes.isRegularFile() && filePatterns.contains(getFileExtension(path.getFileName().toString()));
-        })){
+        int batchSize = 1000;
+        List<Path> result = new ArrayList<>();   //总结果
+        List<Path> batchDeal = new ArrayList<>(batchSize);  //批量处理
 
-            return stream.collect(Collectors.toList());
+        try(Stream<Path> stream = Files.walk(directoryPath, maxDepth)){
+
+             stream.parallel()
+                     .filter(Files::isRegularFile)
+                    .filter(path -> filePatterns.contains(getFileExtension(path.getFileName().toString())))
+                    .forEach(path -> {
+                        synchronized (batchDeal) {
+                            batchDeal.add(path);
+                            if (batchDeal.size() == batchSize) {
+                                result.addAll(batchDeal);
+                                batchDeal.clear();
+                            }
+                        }
+                    });
+
+             if (!batchDeal.isEmpty()) {
+                 result.addAll(batchDeal);
+             }
+
+             return result;
 
         } catch (Exception e) {
-            ERROR_LOGGER.error("搜索目录异常",e);
-            throw new RuntimeException("搜索目录异常",e);
+            throw new FileReadException("搜索目录异常,权限不足",e);
         }
     }
 

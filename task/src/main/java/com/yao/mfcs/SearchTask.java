@@ -1,7 +1,6 @@
 package com.yao.mfcs;
 
 import org.slf4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,7 +46,6 @@ public class SearchTask implements Supplier<List<SearchResult>> {
     //判断path是否存在
     public void pathExists(Path path) {
         if(Files.notExists(path)){
-            ERROR_LOGGER.error("文件不存在：{}",path);
             throw new InvalidPathException("文件不存在：" + path);
         }
     }
@@ -55,7 +53,6 @@ public class SearchTask implements Supplier<List<SearchResult>> {
     //判断keyword是否为空
     public void keywordIsEmpty(String keyword) {
         if(keyword==null || keyword.isEmpty()){
-            ERROR_LOGGER.error("关键词不能为空");
             throw new IllegalArgumentException("关键词不能为空");
         }
     }
@@ -85,7 +82,6 @@ public class SearchTask implements Supplier<List<SearchResult>> {
             }
 
         } catch (IOException e) {
-            ERROR_LOGGER.error("文件不可读",e);
             throw new FileReadException("文件不可读",e);
         }
     }
@@ -107,7 +103,6 @@ public class SearchTask implements Supplier<List<SearchResult>> {
             BUSINESS_LOGGER.info("搜索完成,匹配数：{}，搜索总行数：{}",results.size(),lineNumber[0]);
             return results;
         } catch (IOException e) {
-            ERROR_LOGGER.error("文件读取异常",e);
             throw new FileReadException("文件读取异常",e);
         }
     }
@@ -131,7 +126,6 @@ public class SearchTask implements Supplier<List<SearchResult>> {
             BUSINESS_LOGGER.info("搜索完成，匹配数：{}，判断总行数：{}",results.size(),lineNumber);
             return results;
         } catch (IOException e) {
-            ERROR_LOGGER.error("文件读取异常",e);
             throw new FileReadException("文件读取异常",e);
         }
     }
