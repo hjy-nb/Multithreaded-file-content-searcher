@@ -26,13 +26,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.yao.mfcs</groupId>
-            <artifactId>scanner</artifactId>
-            <version>${modules.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>

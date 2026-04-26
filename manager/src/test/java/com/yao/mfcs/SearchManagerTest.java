@@ -9,7 +9,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,8 +30,9 @@ class SearchManagerTest {
         Files.writeString(file1, "Hello World\nThis is a test file");
         Files.writeString(file2, "public class Test {\n    public static void main(String[] args) {}\n}");
 
-        List<Path> files = List.of(file1, file2);
-        searchManager = new SearchManager(files);
+        searchManager = new SearchManager(tempDir);
+        searchManager.addFilePattern(".txt");
+        searchManager.addFilePattern(".java");
     }
 
     // 测试搜索功能：关键词存在
@@ -42,7 +42,7 @@ class SearchManagerTest {
             searchManager.search("Hello");
         });
 
-        ResultAggregator aggregator = ResultAggregator.getInstance();
+        ResultAggregator aggregator = searchManager.getResultAggregator();
         assertFalse(aggregator.getAllResults().isEmpty());
     }
 
@@ -53,24 +53,48 @@ class SearchManagerTest {
             searchManager.search("NonExistentKeyword123456");
         });
 
-        ResultAggregator aggregator = ResultAggregator.getInstance();
+        ResultAggregator aggregator = searchManager.getResultAggregator();
         assertEquals(0, aggregator.getAllResults().size());
     }
 
-    // 测试构造函数：空列表抛出异常
+    // 测试构造函数：目录不存在抛出异常
     @Test
-    void testConstructorWithEmptyList() {
-        assertThrows(SearchResultIsNull.class, () -> {
-            new SearchManager(List.of());
+    void testConstructorWithInvalidPath() {
+        assertThrows(InvalidPathException.class, () -> {
+            new SearchManager(Path.of("non_existent_directory"));
         });
     }
 
-    // 测试构造函数：null 列表抛出异常
+    // 测试构造函数：最大深度非法抛出异常
     @Test
-    void testConstructorWithNullList() {
-        assertThrows(SearchResultIsNull.class, () -> {
-            new SearchManager(null);
+    void testConstructorWithInvalidMaxDepth() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new SearchManager(tempDir, 0);
         });
+    }
+
+    // 测试添加文件扩展名过滤
+    @Test
+    void testAddFilePattern() {
+        assertDoesNotThrow(() -> {
+            searchManager.addFilePattern(".py");
+        });
+    }
+
+    // 测试添加非法文件扩展名
+    @Test
+    void testAddInvalidFilePattern() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            searchManager.addFilePattern("invalid");
+        });
+    }
+
+    // 测试获取文件扩展名
+    @Test
+    void testGetFileExtension() {
+        assertEquals(".txt", searchManager.getFileExtension("test.txt"));
+        assertEquals("", searchManager.getFileExtension("test"));
+        assertEquals(".gz", searchManager.getFileExtension("test.tar.gz"));
     }
 
     // 测试关闭线程池

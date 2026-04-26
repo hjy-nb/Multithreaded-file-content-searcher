@@ -70,6 +70,11 @@ public class LoadConfig {
     public  boolean getPropertyBoolean(String key){
         String value=properties.getProperty(key);
 
+        if(value==null){
+            BUSINESS_LOGGER.warn("配置文件参数转换boolean异常");
+            return false;
+        }
+
         if(value.equals("true")||value.equals("false")){
             return Boolean.parseBoolean(value);
         }
@@ -83,6 +88,11 @@ public class LoadConfig {
     // 获取boolean配置带默认值
     public  boolean getPropertyBoolean(String key,boolean defaultValue){
        String value=properties.getProperty(key);
+
+       if(value==null){
+           BUSINESS_LOGGER.warn("配置文件参数转换boolean异常,将使用默认值");
+           return defaultValue;
+       }
 
        if(value.equals("true")||value.equals("false")){
            return Boolean.parseBoolean(value);

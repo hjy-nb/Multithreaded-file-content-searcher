@@ -12,24 +12,18 @@ public class Main {
     private static final Logger ERROR_LOGGER = LoggerManagement.getErrorLogger();
 
     private SearchManager searchManager; // 搜索管理器
-    private DirectoryScanner directoryScanner;  // 目录扫描器
     private final Scanner scanner= new Scanner(System.in);
 
-    //初始化目录扫描器
-    public void initDirectoryScanner(String directoryPath) {
-        directoryScanner = new DirectoryScanner(Path.of(directoryPath));
-    }
-    //获取目录扫描器结果
-    public List<Path> getDirectoryScannerResults() {
-        return CompletableFuture.runAsync(()-> directoryScanner.addFilePattern(),SearchManager.IO_THREAD_POOL)
-                .thenApplyAsync(v-> directoryScanner.search(),SearchManager.IO_THREAD_POOL)
-                .join();
+    //初始化搜索管理器
+    public void initSearchManager(String directoryPath) {
+        searchManager = new SearchManager(Path.of(directoryPath));
     }
 
-    //初始化搜索管理器
-    public void initSearchManager(List<Path> searchResults) {
-        searchManager = new SearchManager(searchResults);
+    //初始化搜索管理器,带搜索深度
+    public void initDirectoryScanner(String directoryPath, int maxDepth) {
+        searchManager = new SearchManager(Path.of(directoryPath), maxDepth);
     }
+
 
     //搜索操作提示
     public void printSearchOperationTips() {
@@ -87,35 +81,30 @@ public class Main {
     //单次搜索
     public int search(Main main) throws Exception{
 
-        RetryPolicyExecutor.execute(new InvalidPathRetryPolicy("初始化目录扫描器"), () -> {
+        RetryPolicyExecutor.execute(new InvalidPathRetryPolicy("初始化搜索管理器"), () -> {
             System.out.println("请输入要搜索的目录：");
             String directoryPath = main.scanner.nextLine();
             BUSINESS_LOGGER.info("输入搜素目录 directoryPath:{}",directoryPath);
 
-            BUSINESS_LOGGER.info("开始初始化目录扫描器");
-            main.initDirectoryScanner(directoryPath);
+            BUSINESS_LOGGER.info("开始初始化搜索管理器");
+            main.initSearchManager(directoryPath);
         });
-
-        List<Path> searchResults;
-
-        try {
-            BUSINESS_LOGGER.info("获取目录扫描器结果");
-            searchResults = main.getDirectoryScannerResults();
-        } catch (Exception e) {
-            ERROR_LOGGER.error("权限不足", e);
-            return -1;
-        }
-
-        BUSINESS_LOGGER.info("初始化搜索管理器");
-        main.initSearchManager(searchResults);
 
         BUSINESS_LOGGER.info("开始搜索");
 
-        System.out.println("请输入要搜索的关键字：");
-        String keyword = main.scanner.nextLine();
-        BUSINESS_LOGGER.info("输入搜素关键字 keyword:{}",keyword);
+        try{
+            CompletableFuture.runAsync(searchManager::addFilePattern, SearchManager.IO_THREAD_POOL)
+                    .thenRunAsync(()->{
+                        System.out.println("请输入要搜索的关键字：");
+                        String keyword = main.scanner.nextLine();
+                        BUSINESS_LOGGER.info("输入搜素关键字 keyword:{}",keyword);
 
-        main.searchManager.search(keyword);
+                        main.searchManager.search(keyword);
+                    }, SearchManager.IO_THREAD_POOL).join();
+        } catch (FileReadException e) {
+            ERROR_LOGGER.error("权限不足,请重试", e);
+            return -1;
+        }
 
         return 0;
     }
